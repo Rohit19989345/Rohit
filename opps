@@ -1,0 +1,106 @@
+from abc import ABC, abstractmethod
+
+# ==========================================
+# 1. ABSTRACTION
+# ==========================================
+# Abstract classes act as templates. They cannot be instantiated 
+# and force child classes to implement specific methods.
+class AbstractProduct(ABC):
+    
+    @abstractmethod
+    def get_product_details(self):
+        """Must be implemented by all concrete product classes."""
+        pass
+
+
+# ==========================================
+# 2. CLASS, OBJECT, & ENCAPSULATION
+# ==========================================
+class Product(AbstractProduct):
+    # Class Attribute (shared by all instances)
+    store_name = "TechMart"
+    
+    def __init__(self, name: str, price: float, discount: float = 0.0):
+        # Public attributes
+        self.name = name
+        # Private attributes (prefixed with double underscore '__')
+        # This restricts direct external modification (Encapsulation)
+        self.__price = price
+        self.__discount = discount
+
+    # Getter method to safely access private data
+    def get_price(self) -> float:
+        return self.__price * (1 - self.__discount)
+
+    # Setter method to safely validate data before changing it
+    def set_discount(self, new_discount: float):
+        if 0.0 <= new_discount <= 1.0:
+            self.__discount = new_discount
+        else:
+            print("Invalid discount! Must be between 0.0 and 1.0")
+
+    # Implementing the abstract method
+    def get_product_details(self) -> str:
+        return f"Product: {self.name} | Final Price: ${self.get_price():.2f}"
+
+    # 5. DUNDER (MAGIC) METHOD
+    # Changes how the object is printed as a string
+    def __str__(self) -> str:
+        return f"{self.name} (${self.get_price():.2f})"
+
+
+# ==========================================
+# 3. INHERITANCE
+# ==========================================
+# Electronics inherits everything from Product
+class Electronics(Product):
+    
+    def __init__(self, name: str, price: float, warranty_months: int):
+        # super() initializes parent class attributes
+        super().__init__(name, price)
+        self.warranty_months = warranty_months
+
+    # 4. POLYMORPHISM (Method Overriding)
+    # Re-defining the parent class method specifically for Electronics
+    def get_product_details(self) -> str:
+        base_details = super().get_product_details()
+        return f"{base_details} | Warranty: {self.warranty_months} months"
+
+
+class Clothing(Product):
+    
+    def __init__(self, name: str, price: float, size: str):
+        super().__init__(name, price)
+        self.size = size
+
+    # Polymorphic implementation for Clothing
+    def get_product_details(self) -> str:
+        base_details = super().get_product_details()
+        return f"{base_details} | Size: {self.size}"
+
+
+# ==========================================
+# EXECUTION (Bringing Objects to Life)
+# ==========================================
+if __name__ == "__main__":
+    print(f"--- Welcome to {Product.store_name} ---\n")
+
+    # Instantiating objects (Creating instances)
+    phone = Electronics(name="Smartphone", price=800.0, warranty_months=24)
+    shirt = Clothing(name="Classic Denim Shirt", price=50.0, size="L")
+
+    # Demonstrating Encapsulation
+    # Direct access to private variable like 'phone.__price' will fail. 
+    # Must use setter and getter:
+    phone.set_discount(0.10) # 10% off
+
+    # Demonstrating Polymorphism
+    # A single interface (get_product_details) handles different product types uniquely
+    inventory = [phone, shirt]
+    
+    print("Current Store Catalog:")
+    for item in inventory:
+        print(item.get_product_details())
+
+    print("\n--- Testing Magic Method (__str__) ---")
+    print(f"Quick view item: {phone}")
