@@ -8,4 +8,4 @@ class Person:
 
 
 person = Person("Rohit", 25)
-person.introduce()
+person.introduce();
